@@ -8,6 +8,7 @@ url = 'https://coinmarketcap.com/exchanges/upbit/?type=spot'
 # Send a GET request to the page
 exchange_response = requests.get(url)
 coin_links = []
+twitter_followers = []
 
 #Funciton to find all names of all coins listed
 def find_names(table):
@@ -20,6 +21,7 @@ def find_names(table):
     else:
         print("No names are found")
 
+#Function to create list of all coins links
 def scrape_coins_links(table):
 # Check if the table is found
     if table:
@@ -35,6 +37,62 @@ def scrape_coins_links(table):
     else:
         print("Table with the specified class not found.")
 
+#Function to get each coin categories
+def scrape_coin_categories(coin_soup):
+    tags = coin_soup.find('div', class_ = 'sc-f70bb44c-0 sc-9ee74f67-0 iGa-diC')
+    categories = tags.find_all('a', class_ ='cmc-link')
+    for category in categories:
+        print("Category:",category.text)
+
+#Function to get each coin information
+def scrape_coin_info(coin_soup):
+    about = coin_soup.find('div', class_ = 'sc-5f3326dd-0 kAOboQ')
+    paragraphs = about.find_all('p')
+    text = ''
+    for paragraph in paragraphs:
+        text = text + paragraph.text
+    print(text)
+
+# #Function to scrapte coin's twitter
+# def scrape_coin_twitter(coin_soup):
+#     socials = coin_soup.find_all('div', class_ = 'sc-f70bb44c-0 sc-7f0f401-2 hEvwxv')[1]
+#     # links = [social.find('div') for social in socials]
+#     links = socials.find_all('a')
+#     hrefs = [link.get('href') for link in links]
+
+#     for href in hrefs:
+#         if 'twitter' in href:
+#             print('Twitter',href)
+#             twitter_response = requests.get(href)
+#             if twitter_response.status_code == 200:
+#                 print("PASSSSSSSSSSSSSSS")
+#                 twitter_soup = BeautifulSoup(twitter_response.text, 'html.parser')
+
+#                 box = twitter_soup.find('div', class_ = 'css-175oi2r r-13awgt0 r-18u37iz r-1w6e6rj')
+#                 followers = box.find_all('span', class_ = 'css-1qaijid r-bcqeeo r-qvutc0 r-poiln3')
+                
+#                 for follower in followers:
+#                     print(follower.text)
+
+#Function to scrapte coin's telegram
+def scrape_coin_telegram(coin_soup):
+    socials = coin_soup.find_all('div', class_ = 'sc-f70bb44c-0 sc-7f0f401-2 hEvwxv')[1]
+    # links = [social.find('div') for social in socials]
+    links = socials.find_all('a')
+    hrefs = [link.get('href') for link in links]
+
+    for href in hrefs:
+        if 't.me' in href:
+            print('Telegram:',href)
+            telegram_response = requests.get(href)
+            if telegram_response.status_code == 200:
+                telegram_soup= BeautifulSoup(telegram_response.text, 'html.parser')
+
+                box = telegram_soup.find('div', class_ = 'tgme_page_extra')
+                text = box.text
+                members = text.split(',')
+                print(members[0])
+
 # Function to scrape data from each individual coin page
 def scrape_individual_coin(coin_url):
     print(coin_url)
@@ -44,22 +102,19 @@ def scrape_individual_coin(coin_url):
         # Parse the content of the coin page
         coin_soup = BeautifulSoup(coin_response.text, 'html.parser')
 
-        # Extract project categories (tags)
-        tags = coin_soup.find('div', class_ = 'sc-f70bb44c-0 sc-9ee74f67-0 iGa-diC')
-        categories = tags.find_all('a', class_ ='cmc-link')
-        for category in categories:
-            print("Category:",category.text)
+        # # Extract project categories (tags)
+        # scrape_coin_categories(coin_soup)
 
-        #Extract project about information
-        about = coin_soup.find('div', class_ = 'sc-5f3326dd-0 kAOboQ')
-        paragraphs = about.find_all('p')
-        text = ''
-        for paragraph in paragraphs:
-            text = text + paragraph.text
-        print(text)
+        # #Extract project about information
+        # scrape_coin_info(coin_soup)
 
-        #Extract listed CEX
+        # #Extract listed CEX
 
+        # #Extract twitter
+        # scrape_coin_twitter(coin_soup)
+
+        #Extract tele
+        scrape_coin_telegram(coin_soup)
 
     else:
         print(f"Failed to retrieve the coin webpage. Status code: {coin_response.status_code}")
