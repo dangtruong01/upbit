@@ -1,3 +1,4 @@
+import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -106,10 +107,8 @@ def scrape_coin_telegram(coin_soup):
                     text = box.text
                     members = text.split(',')
                     coin_telegram.append(members[0])
-                else:
-                    coin_telegram.append('0')
-        else:
-            coin_telegram.append('0')
+                    return
+    coin_telegram.append('0')
 
 # Function to scrape data from each individual coin page
 def scrape_individual_coin(coin_url):
@@ -183,6 +182,7 @@ exchange_response = requests.get(url)
 if exchange_response.status_code == 200:
     # Parse the content of the page
     soup = BeautifulSoup(driver.page_source, 'html.parser')
+    # soup = BeautifulSoup(exchange_response.text, 'html.parser')
     
     # Find the table with the specific class
     table = soup.find('table', class_='sc-14cb040a-3 ldpbBC cmc-table')
@@ -199,5 +199,13 @@ else:
 for coin_link in coin_links:
     scrape_individual_coin(coin_link)
 
+df = pd.DataFrame({
+    'Coin Name': coin_names,
+    'Info': coin_info,
+    'Category': coin_category,
+    'Telegram Members': coin_telegram
+})
 
-print(coin_names)
+# Writing the DataFrame to an Excel file
+filename = 'coin_data.xlsx'
+df.to_excel(filename, index=False)
