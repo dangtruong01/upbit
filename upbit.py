@@ -20,6 +20,8 @@ coin_names = []
 coin_info = []
 coin_category = []
 coin_telegram = []
+coin_marketcap = []
+coin_volume = []
 
 #Funciton to find all names of all coins listed
 def find_names(table):
@@ -67,6 +69,14 @@ def scrape_coin_info(coin_soup):
     for paragraph in paragraphs:
         text = text + paragraph.text
     coin_info.append(text)
+
+#Function to get each coin voiume
+def scrape_coin_volume(coin_soup):
+    volume_soup = coin_soup.find_all('dd', class_ = 'sc-f70bb44c-0 bCgkcs base-text')[1]
+    volume = volume_soup.text.split('%')[1]
+    print(volume)
+    coin_volume.append(volume)
+
 
 # #Function to scrapte coin's twitter
 # def scrape_coin_twitter(coin_soup):
@@ -132,6 +142,9 @@ def scrape_individual_coin(coin_url):
 
         #Extract tele
         scrape_coin_telegram(coin_soup)
+
+        #Coin volumne
+        scrape_coin_volume(coin_soup)
 
     else:
         print(f"Failed to retrieve the coin webpage. Status code: {coin_response.status_code}")
@@ -203,7 +216,8 @@ df = pd.DataFrame({
     'Coin Name': coin_names,
     'Info': coin_info,
     'Category': coin_category,
-    'Telegram Members': coin_telegram
+    'Telegram Members': coin_telegram,
+    'Volume': coin_volume
 })
 
 # Writing the DataFrame to an Excel file
