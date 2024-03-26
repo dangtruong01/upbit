@@ -17,6 +17,7 @@ url = 'https://coinmarketcap.com/exchanges/upbit/?type=spot'
 coin_links = []
 twitter_followers = []
 coin_names = []
+coin_symbol = []
 coin_info = []
 coin_category = []
 coin_telegram = []
@@ -33,6 +34,15 @@ def find_names(table):
             coin_names.append(name.text)
     else:
         print("No names are found")
+
+def scrape_coins_symbols(table):
+    if table:
+        symbols = table.find_all('a', class_='sc-cefb3d9b-0 iTwyIj cmc-link')
+
+        for symbol in symbols:
+            lst = symbol.text.split('/')
+            coin_symbol.append(lst[0])
+            print(coin_symbol)
 
 #Function to create list of all coins links
 def scrape_coins_links(table):
@@ -202,6 +212,9 @@ if exchange_response.status_code == 200:
 
     #Get all coins listed on upbit
     find_names(table)
+
+    #Scrape symbols
+    scrape_coins_symbols(table)
 
     #Scrape through all coins
     scrape_coins_links(table)
